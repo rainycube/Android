@@ -33,10 +33,14 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.GlideBuilder;
+import com.bumptech.glide.module.GlideModule;
 import com.rainycube.petbuddy.adapter.ListViewItemAdapter;
 
-public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, ListViewItemAdapter.OnRecyclerViewItemClickListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, ListViewItemAdapter.OnRecyclerViewItemClickListener {
+
+    private final String mainImageUrl = "http://kr.iwall365.com/iPhoneWallpaper/640x960/1511/White-dog-portrait-pink-flowers_640x960_iPhone_4_wallpaper.jpg";
 
     ImageView imageViewMainHeader;
     ListView listViewMain;
@@ -109,7 +113,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onRecyclerViewItemSelect(View v, int position) {
-        Toast.makeText(this, "Click " + Integer.toString(position), Toast.LENGTH_SHORT ).show();
+        Toast.makeText(this, "Click " + Integer.toString(position), Toast.LENGTH_SHORT).show();
     }
 
     public void init() {
@@ -141,14 +145,17 @@ public class MainActivity extends AppCompatActivity
 
         listViewMain = (ListView) findViewById(R.id.lv_main);
         imageViewMainHeader = (ImageView) findViewById(R.id.imv_main_header);
+
+        Glide.with(this).load(mainImageUrl).centerCrop().into(imageViewMainHeader);
+
         listViewMain.addHeaderView(listHeader);
 
         listViewItemAdapter = new ListViewItemAdapter(R.layout.listview_row);
         listViewItemAdapter.addItem(getResources().getDrawable(R.drawable.sample), "Recent searches");
-        listViewItemAdapter.addItem(getResources().getDrawable(R.drawable.sample2), "Recently viewed");
-        listViewItemAdapter.addItem(getResources().getDrawable(R.drawable.sample3), "Just for the weekend");
-        listViewItemAdapter.addItem(getResources().getDrawable(R.drawable.sample4), "Most Popular");
-        listViewItemAdapter.addItem(getResources().getDrawable(R.drawable.sample5), "Favorites");
+//        listViewItemAdapter.addItem(getResources().getDrawable(R.drawable.sample2), "Recently viewed");
+//        listViewItemAdapter.addItem(getResources().getDrawable(R.drawable.sample3), "Just for the weekend");
+//        listViewItemAdapter.addItem(getResources().getDrawable(R.drawable.sample4), "Most Popular");
+//        listViewItemAdapter.addItem(getResources().getDrawable(R.drawable.sample5), "Favorites");
         listViewItemAdapter.setSelectItemClickListener(this);
 
         listViewMain.setAdapter(listViewItemAdapter);

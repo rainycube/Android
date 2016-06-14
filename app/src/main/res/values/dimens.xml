@@ -10,8 +10,8 @@
     <dimen name="main_header_image_height">500dp</dimen>
     <dimen name="main_sticky_header_height">150dp</dimen>
     <dimen name="main_listview_divider_height">1dp</dimen>
-    <dimen name="main_listview_row_height">230dp</dimen>
+    <dimen name="main_listview_row_height">260dp</dimen>
 
-    <dimen name="main_recyclerview_row_height">200dp</dimen>
-    <dimen name="main_recyclerview_item_image_height">150dp</dimen>
+    <dimen name="main_recyclerview_row_height">230dp</dimen>
+    <dimen name="main_recyclerview_item_image_height">170dp</dimen>
 </resources>

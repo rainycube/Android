@@ -8,8 +8,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.rainycube.petbuddy.R;
-import com.rainycube.petbuddy.dataset.RecyclerViewItem;
+import com.rainycube.petbuddy.dataset.PetItem;
 
 import java.util.ArrayList;
 
@@ -20,8 +21,9 @@ public class RecyclerViewItemAdapter extends RecyclerView.Adapter<RecyclerView.V
 
     private OnItemClickListener onItemClickListener;
 
-    private ArrayList<RecyclerViewItem> datas;
+    private ArrayList<PetItem> datas;
 
+    private Context context;
     public void setSelectItemClickListener(OnItemClickListener onItemClickListener) {
         this.onItemClickListener = onItemClickListener;
     }
@@ -30,7 +32,8 @@ public class RecyclerViewItemAdapter extends RecyclerView.Adapter<RecyclerView.V
         public void onSelectItem(View v, int position);
     }
 
-    public RecyclerViewItemAdapter(Context context, ArrayList<RecyclerViewItem> list) {
+    public RecyclerViewItemAdapter(Context context, ArrayList<PetItem> list) {
+        this.context = context;
         this.datas = list;
     }
 
@@ -38,18 +41,20 @@ public class RecyclerViewItemAdapter extends RecyclerView.Adapter<RecyclerView.V
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         View view = inflater.inflate(R.layout.sample_item, parent, false);
-        return new SampleViewHolder(view);
+        return new RecyclerItemViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
-        SampleViewHolder sampleViewHolder = (SampleViewHolder) viewHolder;
-        ImageView itemImage = sampleViewHolder.itemImage;
-        TextView itemTitle = sampleViewHolder.itemTitle;
-        TextView itemContent = sampleViewHolder.itemContent;
-        itemImage.setImageDrawable(datas.get(position).getImage());
-        itemTitle.setText(datas.get(position).getTitle());
-        itemContent.setText(datas.get(position).getContent());
+        RecyclerItemViewHolder recyclerItemViewHolder = (RecyclerItemViewHolder) viewHolder;
+        ImageView itemImage = recyclerItemViewHolder.itemImage;
+        TextView itemTitle = recyclerItemViewHolder.itemTitle;
+        TextView itemContent = recyclerItemViewHolder.itemContent;
+
+        //itemImage.setImageDrawable(datas.get(position).getImage());
+        Glide.with(context).load(datas.get(position).getPetImgUrl()).centerCrop().into(itemImage);
+        itemTitle.setText(datas.get(position).getPetType());
+        itemContent.setText(datas.get(position).getTradeLocation());
     }
 
     @Override
@@ -76,12 +81,12 @@ public class RecyclerViewItemAdapter extends RecyclerView.Adapter<RecyclerView.V
         }
     }
 
-    public class SampleViewHolder extends ItemViewHolder {
+    public class RecyclerItemViewHolder extends ItemViewHolder {
         ImageView itemImage;
         TextView itemTitle;
         TextView itemContent;
 
-        public SampleViewHolder(View itemView) {
+        public RecyclerItemViewHolder(View itemView) {
             super(itemView);
             itemImage = (ImageView) itemView.findViewById(R.id.imv_item_image);
             itemTitle = (TextView) itemView.findViewById(R.id.txt_item_title);

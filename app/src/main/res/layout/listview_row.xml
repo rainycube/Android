@@ -21,6 +21,7 @@
         android:layout_height="@dimen/main_recyclerview_row_height"
         android:background="@color/colorPrimary"
         android:gravity="center_vertical"
-        android:padding="10dp"/>
+        android:padding="10dp"
+        android:transitionGroup="false" />
 
 </LinearLayout>

@@ -18,6 +18,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <meta-data
+            android:name="com.rainycube.petbuddy.imageprocessing.CommonGlideModule"
+            android:value="GlideModule"/>
+
     </application>
+
+    <uses-permission android:name="android.permission.INTERNET"/>
 
 </manifest>
