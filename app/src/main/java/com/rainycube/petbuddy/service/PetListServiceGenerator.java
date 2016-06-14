@@ -10,6 +10,7 @@ import com.rainycube.petbuddy.JsonStringConverterFactory;
  */
 public class PetListServiceGenerator {
     public static final String API_BASE_URL = "http://leeskhome.iptime.org:8080/petAPI/";
+
     private static Retrofit.Builder builder =
             new Retrofit.Builder()
                     .baseUrl(API_BASE_URL)

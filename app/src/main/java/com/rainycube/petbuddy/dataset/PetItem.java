@@ -9,22 +9,16 @@ import com.google.gson.annotations.SerializedName;
 public class PetItem {
 
     @SerializedName("petId")
-    @Expose
     private int petId;
     @SerializedName("petName")
-    @Expose
     private String petName;
     @SerializedName("petType")
-    @Expose
     private String petType;
     @SerializedName("petGender")
-    @Expose
     private String petGender;
     @SerializedName("petImgurl")
-    @Expose
     private String petImgurl;
     @SerializedName("tradeLocation")
-    @Expose
     private String tradeLocation;
 
     public void setPetGender(String petGender) {

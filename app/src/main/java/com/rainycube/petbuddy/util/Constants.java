@@ -1,4 +1,4 @@
-package com.rainycube.petbuddy.common;
+package com.rainycube.petbuddy.util;
 
 /**
  * Created by SBKim on 2016-06-14.

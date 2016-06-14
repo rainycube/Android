@@ -126,6 +126,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                // 실시간 검색 Activity 구현 : https://realm.io/kr/news/android-search-text-view/
+
+
+
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
@@ -151,11 +155,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         listViewMain.addHeaderView(listHeader);
 
         listViewItemAdapter = new ListViewItemAdapter(R.layout.listview_row);
-        listViewItemAdapter.addItem(getResources().getDrawable(R.drawable.sample), "Recent searches");
-//        listViewItemAdapter.addItem(getResources().getDrawable(R.drawable.sample2), "Recently viewed");
-//        listViewItemAdapter.addItem(getResources().getDrawable(R.drawable.sample3), "Just for the weekend");
-//        listViewItemAdapter.addItem(getResources().getDrawable(R.drawable.sample4), "Most Popular");
-//        listViewItemAdapter.addItem(getResources().getDrawable(R.drawable.sample5), "Favorites");
+        // List Items
+        listViewItemAdapter.addItem("Recent searches");
+        listViewItemAdapter.addItem("Recently viewed");
+        listViewItemAdapter.addItem("Just for the weekend");
+        listViewItemAdapter.addItem("Most Popular");
+        listViewItemAdapter.addItem("Favorites");
         listViewItemAdapter.setSelectItemClickListener(this);
 
         listViewMain.setAdapter(listViewItemAdapter);
