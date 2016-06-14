@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#ffffff</color>
+    <color name="colorPrimaryDark">#020202</color>
+    <color name="colorAccent">#ff5b60</color>
+
+    <color name="colorHomeActionBarTitle">#494949</color>
+
+    <color name="colorDivider">#9E9E9E</color>
+</resources>
