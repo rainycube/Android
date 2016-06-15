@@ -16,9 +16,9 @@
 package com.rainycube.petbuddy;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -34,8 +34,6 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.GlideBuilder;
-import com.bumptech.glide.module.GlideModule;
 import com.rainycube.petbuddy.adapter.ListViewItemAdapter;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, ListViewItemAdapter.OnRecyclerViewItemClickListener {
@@ -127,11 +125,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onClick(View view) {
                 // 실시간 검색 Activity 구현 : https://realm.io/kr/news/android-search-text-view/
+                startActivity(new Intent(MainActivity.this, SearchActivity.class));
 
 
-
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
             }
         });
 
@@ -154,13 +152,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         listViewMain.addHeaderView(listHeader);
 
-        listViewItemAdapter = new ListViewItemAdapter(R.layout.listview_row);
+        listViewItemAdapter = new ListViewItemAdapter(this, R.layout.listview_row);
         // List Items
         listViewItemAdapter.addItem("Recent searches");
-        listViewItemAdapter.addItem("Recently viewed");
-        listViewItemAdapter.addItem("Just for the weekend");
-        listViewItemAdapter.addItem("Most Popular");
-        listViewItemAdapter.addItem("Favorites");
+//        listViewItemAdapter.addItem("Recently viewed");
+//        listViewItemAdapter.addItem("Just for the weekend");
+//        listViewItemAdapter.addItem("Most Popular");
+//        listViewItemAdapter.addItem("Favorites");
         listViewItemAdapter.setSelectItemClickListener(this);
 
         listViewMain.setAdapter(listViewItemAdapter);

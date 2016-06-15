@@ -3,7 +3,7 @@ package com.rainycube.petbuddy.service;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-import com.rainycube.petbuddy.JsonStringConverterFactory;
+import com.rainycube.petbuddy.util.JsonStringConverterFactory;
 
 /**
  * Created by SBKim on 2016-06-14.

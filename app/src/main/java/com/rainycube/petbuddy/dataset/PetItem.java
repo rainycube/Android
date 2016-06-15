@@ -1,12 +1,13 @@
 package com.rainycube.petbuddy.dataset;
 
-import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+
+import io.realm.RealmObject;
 
 /**
  * Created by SBKim on 2016-06-13.
  */
-public class PetItem {
+public class PetItem extends RealmObject {
 
     @SerializedName("petId")
     private int petId;

@@ -1,6 +1,6 @@
 <resources>
 
-    <!-- Base application theme. -->
+    <!-- Main application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
@@ -20,6 +20,28 @@
 
     <style name="DrawerArrowStyle" parent="Widget.AppCompat.DrawerArrowToggle">
         <item name="spinBars">true</item>
+        <item name="color">@color/colorHomeActionBarTitle</item>
+    </style>
+
+    <style name="CustomTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="actionBarStyle">@style/customActionBar</item>
+        <item name="drawerArrowStyle">@style/CustomArrowStyle</item>
+    </style>
+
+    <style name="customActionBar" parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
+        <item name="android:titleTextStyle">@style/CustomTextStyle</item>
+        <item name="titleTextStyle">@style/CustomTextStyle</item>
+    </style>
+
+    <style name="CustomTextStyle" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textColor">@color/colorHomeActionBarTitle</item>
+    </style>
+
+    <style name="CustomArrowStyle" parent="Widget.AppCompat.DrawerArrowToggle">
         <item name="color">@color/colorHomeActionBarTitle</item>
     </style>
 

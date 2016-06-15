@@ -19,6 +19,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
+import io.realm.RealmResults;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -38,6 +41,7 @@ public class ListViewItemAdapter extends BaseAdapter {
     RecyclerView itemRecyclerView;
     LinearLayoutManager layoutManager;
     RecyclerViewItemAdapter recyclerViewItemAdapter;
+    Context context;
     int resource;
     List<PetItem> petList;
 
@@ -58,13 +62,14 @@ public class ListViewItemAdapter extends BaseAdapter {
         public void onRecyclerViewItemSelect(View v, int position);
     }
 
-    public ListViewItemAdapter(int resource) {
+    public ListViewItemAdapter(Context context, int resource) {
+        this.context = context;
         this.resource = resource;
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        Context context = parent.getContext();
+        final Context context = parent.getContext();
         if (convertView == null) {
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             convertView = inflater.inflate(resource, parent, false);
@@ -93,6 +98,7 @@ public class ListViewItemAdapter extends BaseAdapter {
                     Log.i(TAG, "Response is successful");
                     try {
                         petList = JSONPetResponse.create(response.body().string());
+                        setRealm(petList);
                         recyclerViewItemAdapter.refresh(petList);
                     } catch (IOException e) {
                         Log.e(TAG, "IOException : " + e.getMessage());
@@ -137,5 +143,36 @@ public class ListViewItemAdapter extends BaseAdapter {
 
     public void addItem(String title) {
         listViewItemList.add(title);
+    }
+
+    private void setRealm( List<PetItem> list) {
+        cleanUp();
+        Realm realm = Realm.getInstance(getRealmConfig());
+        realm.beginTransaction();
+        realm.copyToRealm(list);
+        realm.commitTransaction();
+        realm.close();
+    }
+
+    private void basicLinkQuery(Context context) {
+        Realm realm = Realm.getInstance(getRealmConfig());
+        Log.d(TAG,"Number of pets : " + realm.where(PetItem.class).count());
+
+        RealmResults<PetItem> results = realm.where(PetItem.class).findAll();
+
+        Log.d(TAG, "Size of result set : " + results.size());
+        realm.close();
+    }
+
+    private RealmConfiguration getRealmConfig() {
+        return new RealmConfiguration
+                .Builder(context)
+                .name("petitem.realm")
+                .deleteRealmIfMigrationNeeded()
+                .build();
+    }
+
+    private void cleanUp() {
+        Realm.deleteRealm(getRealmConfig());
     }
 }

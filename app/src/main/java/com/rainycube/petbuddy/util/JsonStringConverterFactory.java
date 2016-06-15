@@ -1,4 +1,4 @@
-package com.rainycube.petbuddy;
+package com.rainycube.petbuddy.util;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
