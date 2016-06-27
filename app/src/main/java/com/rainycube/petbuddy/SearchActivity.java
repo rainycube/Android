@@ -13,7 +13,7 @@ import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import io.realm.RealmResults;
 
-public class SearchActivity extends AppCompatActivity {
+public class SearchActivity extends RealmBaseActivity {
 
     private final String TAG = "SearchActivity";
 
@@ -73,17 +73,5 @@ public class SearchActivity extends AppCompatActivity {
 //
 //        realm.close();
         return status;
-    }
-
-    private RealmConfiguration getRealmConfig() {
-        return new RealmConfiguration
-                .Builder(this)
-                .name("petitem.realm")
-                .deleteRealmIfMigrationNeeded()
-                .build();
-    }
-
-    private void cleanUp() {
-        Realm.deleteRealm(getRealmConfig());
     }
 }

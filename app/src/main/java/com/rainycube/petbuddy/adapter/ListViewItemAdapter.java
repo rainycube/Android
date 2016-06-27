@@ -10,6 +10,10 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import com.google.gson.ExclusionStrategy;
+import com.google.gson.FieldAttributes;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.rainycube.petbuddy.R;
 import com.rainycube.petbuddy.util.JSONPetResponse;
 import com.rainycube.petbuddy.dataset.PetItem;
@@ -21,6 +25,7 @@ import java.util.List;
 
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
+import io.realm.RealmObject;
 import io.realm.RealmResults;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -43,16 +48,6 @@ public class ListViewItemAdapter extends BaseAdapter {
     RecyclerViewItemAdapter recyclerViewItemAdapter;
     Context context;
     int resource;
-    List<PetItem> petList;
-
-    public interface RequestInterface {
-        /*
-         * Retrofit get annotation with our URL
-         * And our method that will return us details of pet.
-        */
-        @GET("list")
-        Call<ResponseBody> getJson();
-    }
 
     public void setSelectItemClickListener(OnRecyclerViewItemClickListener onRecyclerViewItemClickListener) {
         this.onRecyclerViewItemClickListener = onRecyclerViewItemClickListener;
@@ -82,39 +77,21 @@ public class ListViewItemAdapter extends BaseAdapter {
         itemRecyclerView.setHasFixedSize(true);
 //        itemRecyclerView.setHorizontalFadingEdgeEnabled(true);
 //        itemRecyclerView.setFadingEdgeLength(10);
-        layoutManager = new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, true);
+        layoutManager = new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false);
         layoutManager.setStackFromEnd(true);
         itemRecyclerView.setLayoutManager(layoutManager);
 
-        // RecyclerView 의 Item에 대한 개별 코드 구현 필요
-        // Realm 데이터베이스 사용하여 처음만 데이터 받음
-
-        RequestInterface service = PetListServiceGenerator.createService(RequestInterface.class);
-        Call<ResponseBody> call = service.getJson();
-        call.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                if (response.isSuccessful()) {
-                    Log.i(TAG, "Response is successful");
-                    try {
-                        petList = JSONPetResponse.create(response.body().string());
-                        setRealm(petList);
-                        recyclerViewItemAdapter.refresh(petList);
-                    } catch (IOException e) {
-                        Log.e(TAG, "IOException : " + e.getMessage());
-                    }
-                } else {
-                    Log.e(TAG, "Response is successful");
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Log.e(TAG, "Error, " + t.getMessage());
-            }
-        });
-
-        recyclerViewItemAdapter = new RecyclerViewItemAdapter(context, petList);
+        List<PetItem> list = new ArrayList<>();
+        PetItem petItem = new PetItem();
+        petItem.setPetId(0);
+        petItem.setPetName("쥬쥬");
+        petItem.setPetType("닥스훈트");
+        petItem.setPetGender("수컷");
+        petItem.setTradeLocation("분당");
+        petItem.setPetImgUrl("http://ninedog.cafe24.com/web/img/show/cogi2.jpg");
+        petItem.setTimeStamp(System.currentTimeMillis());
+        list.add(petItem);
+        recyclerViewItemAdapter = new RecyclerViewItemAdapter(context, list);
         recyclerViewItemAdapter.setSelectItemClickListener(new RecyclerViewItemAdapter.OnItemClickListener() {
             @Override
             public void onSelectItem(View v, int position) {
@@ -145,34 +122,10 @@ public class ListViewItemAdapter extends BaseAdapter {
         listViewItemList.add(title);
     }
 
-    private void setRealm( List<PetItem> list) {
-        cleanUp();
-        Realm realm = Realm.getInstance(getRealmConfig());
-        realm.beginTransaction();
-        realm.copyToRealm(list);
-        realm.commitTransaction();
-        realm.close();
+    public void setData(List<PetItem> list) {
+        recyclerViewItemAdapter.setData(list);
+//        recyclerViewItemAdapter.notifyDataSetChanged();
+        Log.d(TAG, "setData()");
     }
 
-    private void basicLinkQuery(Context context) {
-        Realm realm = Realm.getInstance(getRealmConfig());
-        Log.d(TAG,"Number of pets : " + realm.where(PetItem.class).count());
-
-        RealmResults<PetItem> results = realm.where(PetItem.class).findAll();
-
-        Log.d(TAG, "Size of result set : " + results.size());
-        realm.close();
-    }
-
-    private RealmConfiguration getRealmConfig() {
-        return new RealmConfiguration
-                .Builder(context)
-                .name("petitem.realm")
-                .deleteRealmIfMigrationNeeded()
-                .build();
-    }
-
-    private void cleanUp() {
-        Realm.deleteRealm(getRealmConfig());
-    }
 }

@@ -1,26 +1,32 @@
 package com.rainycube.petbuddy.dataset;
 
-import com.google.gson.annotations.SerializedName;
-
 import io.realm.RealmObject;
+import io.realm.Sort;
+import io.realm.annotations.PrimaryKey;
 
 /**
  * Created by SBKim on 2016-06-13.
  */
 public class PetItem extends RealmObject {
 
-    @SerializedName("petId")
+    @PrimaryKey
     private int petId;
-    @SerializedName("petName")
     private String petName;
-    @SerializedName("petType")
     private String petType;
-    @SerializedName("petGender")
     private String petGender;
-    @SerializedName("petImgurl")
     private String petImgurl;
-    @SerializedName("tradeLocation")
     private String tradeLocation;
+    private long timeStamp;
+
+    final static public String PETID = "petId";
+    final static public String PETNAME = "petName";
+    final static public String PETTYPE = "petType";
+    final static public String PETGENDER = "petGender";
+    final static public String TRADELOCATION = "tradeLocation";
+    final static public String TIMESTAMP = "timeStamp";
+
+    final static public String DefaultSortField = TIMESTAMP;
+    final static public Sort DefaultSortASC = Sort.ASCENDING;
 
     public void setPetGender(String petGender) {
         this.petGender = petGender;
@@ -46,6 +52,10 @@ public class PetItem extends RealmObject {
         this.tradeLocation = tradeLocation;
     }
 
+    public void setTimeStamp(long timeStamp) {
+        this.timeStamp = timeStamp;
+    }
+
     public String getPetGender() {
         return petGender;
     }
@@ -68,5 +78,13 @@ public class PetItem extends RealmObject {
 
     public String getTradeLocation() {
         return tradeLocation;
+    }
+
+    public long getTimeStamp() {
+        return timeStamp;
+    }
+
+    public PetItem() {
+        timeStamp = System.currentTimeMillis();
     }
 }

@@ -19,6 +19,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -34,22 +35,66 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.google.gson.ExclusionStrategy;
+import com.google.gson.FieldAttributes;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.rainycube.petbuddy.adapter.ListViewItemAdapter;
+import com.rainycube.petbuddy.dataset.PetItem;
+import com.rainycube.petbuddy.service.PetListServiceGenerator;
+import com.rainycube.petbuddy.util.JSONPetResponse;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, ListViewItemAdapter.OnRecyclerViewItemClickListener {
+import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
+
+import io.realm.Realm;
+import io.realm.RealmObject;
+import io.realm.RealmResults;
+import io.realm.exceptions.RealmMigrationNeededException;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+public class MainActivity extends RealmBaseActivity implements NavigationView.OnNavigationItemSelectedListener, ListViewItemAdapter.OnRecyclerViewItemClickListener {
+
+    private final String TAG = "MainActivity";
 
     private final String mainImageUrl = "http://kr.iwall365.com/iPhoneWallpaper/640x960/1511/White-dog-portrait-pink-flowers_640x960_iPhone_4_wallpaper.jpg";
 
     ImageView imageViewMainHeader;
+
     ListView listViewMain;
 
     ListViewItemAdapter listViewItemAdapter;
+
+    private Realm realm;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        try {
+            realm = Realm.getInstance(getRealmConfig());
+        } catch (RealmMigrationNeededException migrationNeedException) {
+            Log.e(TAG, "migrationNeedException path : " + migrationNeedException.getPath());
+            Realm.deleteRealm(getRealmConfig());
+            realm = Realm.getInstance(getRealmConfig());
+        }
+
+        // List Items
+        onLoadPetItems();
+
         init();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        onLoadPetItems();
     }
 
     @Override
@@ -58,8 +103,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
+            if(realm.isInTransaction()) {
+                realm.commitTransaction();
+            }
             super.onBackPressed();
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        realm.close(); // Remember to close Realm when done.
     }
 
     @Override
@@ -153,7 +207,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         listViewMain.addHeaderView(listHeader);
 
         listViewItemAdapter = new ListViewItemAdapter(this, R.layout.listview_row);
-        // List Items
         listViewItemAdapter.addItem("Recent searches");
 //        listViewItemAdapter.addItem("Recently viewed");
 //        listViewItemAdapter.addItem("Just for the weekend");
@@ -162,5 +215,54 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         listViewItemAdapter.setSelectItemClickListener(this);
 
         listViewMain.setAdapter(listViewItemAdapter);
+    }
+
+    // 상대경로 -> 절대경로
+    private String getFullPath(String path) {
+        StringBuilder s = new StringBuilder("절대주소");
+        s.append(path);
+        return s.toString();
+    }
+
+    public void onLoadPetItems() {
+        RequestInterface service = PetListServiceGenerator.createService(RequestInterface.class);
+        Call<ResponseBody> call = service.getPetList("list");
+        call.enqueue(new Callback<ResponseBody>() {
+                         @Override
+                         public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                             Log.i(TAG, "onResponse : " + response.isSuccessful());
+                             try {
+                                 long timestamp = System.currentTimeMillis();
+                                 List<PetItem> petList = JSONPetResponse.create(response.body().string());
+                                 realm.beginTransaction();
+                                 for (PetItem pet : petList) {
+                                     pet.setTimeStamp(timestamp);
+                                     pet.setPetImgUrl("https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Emily_Maltese.jpg/250px-Emily_Maltese.jpg");
+//                                     if (pet.getPetId() % 2 == 0)
+//                                         pet.setPetImgUrl("http://www.stmartinsdogkennels.com/attachments/Slider/0ab6e099-9350-26a0-6981-7e395a3967a1/23695_pets_vertical_store_dogs_small_tile_8_CB312176604_.jpg");
+//                                     else if (pet.getPetId() % 3 == 0)
+//                                         pet.setPetImgUrl("https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Emily_Maltese.jpg/250px-Emily_Maltese.jpg");
+//                                     else if (pet.getPetId() % 4 == 0)
+//                                         pet.setPetImgUrl("https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Coton_de_Tular_2.jpg/250px-Coton_de_Tular_2.jpg");
+//                                     else
+//                                         pet.setPetImgUrl("http://ninedog.cafe24.com/web/img/show/cogi2.jpg");
+                                 }
+                                 Collection<PetItem> updatedPets = realm.copyToRealmOrUpdate(petList);
+                                 Log.i(TAG, " item Updated or Created:" + updatedPets.size());
+                                 realm.commitTransaction();
+                                 final RealmResults<PetItem> allSorted = realm.where(PetItem.class).findAllSorted(PetItem.DefaultSortField, PetItem.DefaultSortASC);
+                                 listViewItemAdapter.setData(allSorted);
+                             } catch (IOException e) {
+                                 Log.e(TAG, "IOException : " + e.getMessage());
+                             }
+                         }
+
+                         @Override
+                         public void onFailure(Call<ResponseBody> call, Throwable t) {
+                             Log.e(TAG, "onFailure : " + t.getMessage());
+                         }
+                     }
+
+        );
     }
 }

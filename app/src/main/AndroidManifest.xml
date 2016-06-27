@@ -29,9 +29,8 @@
         <activity
             android:name=".SearchActivity"
             android:label="@string/activity_search"
-            android:theme="@style/CustomTheme">
-        </activity>
-
+            android:theme="@style/CustomTheme"></activity>
+        <activity android:name=".RealmBaseActivity"></activity>
     </application>
 
 </manifest>

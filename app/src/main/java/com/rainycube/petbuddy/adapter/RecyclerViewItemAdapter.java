@@ -11,21 +11,31 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.rainycube.petbuddy.R;
+import com.rainycube.petbuddy.RealmBaseActivity;
 import com.rainycube.petbuddy.dataset.PetItem;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
+import io.realm.RealmResults;
 
 /**
  * Created by sbkim on 2016. 6. 13..
  */
-public class RecyclerViewItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class RecyclerViewItemAdapter extends RecyclerView.Adapter<RecyclerViewItemAdapter.ItemViewHolder> {
     private final String TAG = "RecyclerViewItemAdapter";
 
     private OnItemClickListener onItemClickListener;
 
-    private List<PetItem> datas;
+    private List<PetItem> pets;
 
     private Context context;
+
+    private RecyclerView mAttechedRecyclerView;
+
+    private int mClickedPosition = -1;
 
     public void setSelectItemClickListener(OnItemClickListener onItemClickListener) {
         this.onItemClickListener = onItemClickListener;
@@ -37,37 +47,40 @@ public class RecyclerViewItemAdapter extends RecyclerView.Adapter<RecyclerView.V
 
     public RecyclerViewItemAdapter(Context context, List<PetItem> list) {
         this.context = context;
-        this.datas = list;
+        this.pets = list;
+    }
+
+    public Context getContext() {
+        return context;
     }
 
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public RecyclerViewItemAdapter.ItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         View view = inflater.inflate(R.layout.sample_item, parent, false);
-        return new RecyclerItemViewHolder(view);
+        return new ItemViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
-        RecyclerItemViewHolder recyclerItemViewHolder = (RecyclerItemViewHolder) viewHolder;
-        ImageView itemImage = recyclerItemViewHolder.itemImage;
-        TextView itemTitle = recyclerItemViewHolder.itemTitle;
-        TextView itemContent = recyclerItemViewHolder.itemContent;
+    public void onBindViewHolder(RecyclerViewItemAdapter.ItemViewHolder viewHolder, int position) {
+        PetItem petItem = pets.get(position);
+        if (petItem != null) {
+            ImageView itemImage = viewHolder.itemImage;
+            TextView itemTitle = viewHolder.itemTitle;
+            TextView itemContent = viewHolder.itemContent;
 
-        // Image 주소 완성되기 전까지...
-        if(datas.get(position).getPetId() % 2 ==  0)
-            datas.get(position).setPetImgUrl("http://www.stmartinsdogkennels.com/attachments/Slider/0ab6e099-9350-26a0-6981-7e395a3967a1/23695_pets_vertical_store_dogs_small_tile_8_CB312176604_.jpg");
-        else if(datas.get(position).getPetId() % 3 == 0)
-            datas.get(position).setPetImgUrl("https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Emily_Maltese.jpg/250px-Emily_Maltese.jpg");
-        else if(datas.get(position).getPetId() % 4 == 0)
-            datas.get(position).setPetImgUrl("https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Coton_de_Tular_2.jpg/250px-Coton_de_Tular_2.jpg");
-        else
-            datas.get(position).setPetImgUrl("http://ninedog.cafe24.com/web/img/show/cogi2.jpg");
-
-        Glide.with(context).load(datas.get(position).getPetImgUrl()).centerCrop().into(itemImage);
-        itemTitle.setText(datas.get(position).getPetType());
-        itemContent.setText(datas.get(position).getTradeLocation());
+            Glide.with(getContext()).load(petItem.getPetImgUrl()).centerCrop().into(itemImage);
+            itemTitle.setText(petItem.getPetType());
+            itemContent.setText(petItem.getTradeLocation());
+            Log.d(TAG, "onBindViewHolder() : Item " + Integer.toString(position) + " => " +  petItem.getPetImgUrl());
+        }
     }
+//
+//    @Override
+//    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+//        super.onAttachedToRecyclerView(recyclerView);
+//        mAttechedRecyclerView = recyclerView;
+//    }
 
     @Override
     public long getItemId(int position) {
@@ -76,48 +89,90 @@ public class RecyclerViewItemAdapter extends RecyclerView.Adapter<RecyclerView.V
 
     @Override
     public int getItemCount() {
-        if(datas == null)
+        if (pets != null)
+            return pets.size();
+        else
             return 0;
-        return datas.size();
     }
 
-    // 상대경로 -> 절대경로
-    private String getFullPath(String path) {
-        StringBuilder s = new StringBuilder("절대주소");
-        s.append(path);
-        return s.toString();
+    public Object getItem(int position) {
+        if (pets == null || pets.get(position) == null) {
+            return null;
+        }
+        return pets.get(position);
     }
 
-    public void refresh(List<PetItem> list) {
-        this.datas = list;
+    public void setData(List<PetItem> list) {
+        if (pets != null) {
+            pets.clear();
+            pets.addAll(list);
+        }
+        else {
+            pets = list;
+        }
         notifyDataSetChanged();
-        Log.i(TAG, "refresh()");
+        Log.d(TAG, "setData() : " + Integer.toString(pets.size()));
     }
 
-    private class ItemViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        public ItemViewHolder(View itemView) {
-            super(itemView);
-            itemView.setOnClickListener(this);
-        }
+    public void updatePets() {
+        Realm realm = Realm.getInstance(getRealmConfig());
 
-        @Override
-        public void onClick(View v) {
-            if(onItemClickListener != null) {
-                onItemClickListener.onSelectItem(v, getPosition());
-            }
+        // Pull all the petItems from the realm
+        RealmResults<PetItem> petItems = realm.where(PetItem.class).findAllSorted(PetItem.DefaultSortField, PetItem.DefaultSortASC);
+
+        // Put these items in the Adapter
+        //setData(petItems);
+        if(petItems != null) {
+                this.pets = petItems;
         }
+        notifyDataSetChanged();
+        getItemCount();
+//        mAttechedRecyclerView.scrollToPosition(0);
+//        mAttechedRecyclerView.invalidate();
+        realm.close();
     }
 
-    public class RecyclerItemViewHolder extends ItemViewHolder {
+    private RealmConfiguration getRealmConfig() {
+        return new RealmConfiguration
+                .Builder(getContext())
+                .name("petitem.realm")
+                .deleteRealmIfMigrationNeeded()
+                .build();
+    }
+
+    public class ItemViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+
         ImageView itemImage;
         TextView itemTitle;
         TextView itemContent;
 
-        public RecyclerItemViewHolder(View itemView) {
+        public ItemViewHolder(View itemView) {
             super(itemView);
+            itemView.setOnClickListener(this);
             itemImage = (ImageView) itemView.findViewById(R.id.imv_item_image);
             itemTitle = (TextView) itemView.findViewById(R.id.txt_item_title);
             itemContent = (TextView) itemView.findViewById(R.id.txt_item_content);
+        }
+
+        @Override
+        public void onClick(View v) {
+//            if(onItemClickListener != null) {
+//                onItemClickListener.onSelectItem(v, getPosition());
+//            }
+//            PetItem petItem = (PetItem) getItem(getAdapterPosition());
+//            mClickedPosition = this.getAdapterPosition();
+//            // Update the realm object affected by the user
+//            Realm realm = Realm.getInstance(getRealmConfig());
+//
+//            // Acquire the list of realm petItems matching the name of the clicked Pet.
+//            PetItem pet = realm.where(PetItem.class).equalTo(PetItem.PETID, petItem.getPetId()).findFirst();
+//
+//            realm.beginTransaction();
+//            pet.setPetName(pet.getPetName());
+//            pet.setTimeStamp(System.currentTimeMillis());
+//            realm.commitTransaction();
+//            realm.close();
+//            updatePets();
         }
     }
 }
